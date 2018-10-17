@@ -12,7 +12,7 @@
 	FROM student_class_professor SC
 	JOIN student S
 	ON S.id = SC.student_id_FK
-	WHERE SC.end_class <> 'null' AND S.status='Graduate' AND SC.grade BETWEEN 60 AND 100
+	WHERE SC.end_class IS NOT NULL AND S.status='Graduate' AND SC.grade BETWEEN 60 AND 100
 	GROUP BY SC.student_id_FK
 	HAVING Total_class = 12
 
@@ -37,7 +37,7 @@ times taught and sorted by the ones taught the most.
 	FROM student S 
 	JOIN student_class_professor SC
 	ON S.id = SC.student_id_FK    
-	WHERE end_class <> 'NULL'
+	WHERE SC.end_class <> 'NULL'
 	GROUP BY SC.student_id_FK
 	ORDER BY GPA DESC
 
@@ -52,7 +52,7 @@ less than three months, starting by the most recent students.
 	ON C.professor_id_FK = P.id
 	AND SC.class_id_FK = C.id
 	AND SC.student_id_FK = S.id
-	WHERE end_class <> 'NULL'
+	WHERE SC.end_class IS NOT NULL
 	AND S.registration_date > DATE_SUB(NOW(), INTERVAL 3 MONTH)
 	ORDER BY S.registration_date DESC
 
@@ -66,7 +66,7 @@ less than three months, starting by the most recent students.
 	ON SC.professor_id_FK = P.id
 	AND C.id = SC.class_id_FK
 	AND S.id = SC.student_id_FK
-	WHERE SC.end_class = 'NULL'
+	WHERE SC.end_class IS NULL
     	GROUP BY P.department	
         	
 or,
@@ -79,7 +79,7 @@ or,
 	ON SC.professor_id_FK = P.id
 	AND C.id = SC.class_id_FK
 	AND S.id = SC.student_id_FK
-	WHERE SC.end_class = 'NULL'
+	WHERE SC.end_class IS NULL
     	GROUP BY Current_class
     	ORDER BY P.department,P.id ASC	
         	
@@ -95,7 +95,7 @@ registered).
 	ON C.professor_id_FK = P.id
 	AND C.id = SC.class_id_FK
 	AND S.id = SC.student_id_FK
-	WHERE SC.end_class = 'NULL'
+	WHERE SC.end_class IS NULL
     	GROUP BY S.id
 	HAVING Student_count > 0
 
