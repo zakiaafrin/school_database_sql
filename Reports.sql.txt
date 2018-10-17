@@ -96,6 +96,6 @@ registered).
 	AND C.id = SC.class_id_FK
 	AND S.id = SC.student_id_FK
 	WHERE SC.end_class IS NULL
-    	GROUP BY S.id
+    	GROUP BY SC.class_id_FK
 	HAVING Student_count > 0
 
