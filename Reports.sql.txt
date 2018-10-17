@@ -1,0 +1,101 @@
+1.Based on a Student ID, display a list of all the classes taken and grades for each class.
+===========================================================================================
+	SELECT SC.student_id_FK, C.class_code, SC.grade
+	FROM student_class_professor SC 
+	JOIN class C
+	ON SC.class_id_FK = C.id
+	WHERE SC.student_id_FK = 8
+
+2.Display a list of all graduate students (the ones who has finished all classes).
+=================================================================================
+	SELECT SC.student_id_FK,S.name AS Student_name,COUNT(SC.class_id_FK) AS Total_class
+	FROM student_class_professor SC
+	JOIN student S
+	ON S.id = SC.student_id_FK
+	WHERE SC.end_class <> 'null' AND S.status='Graduate' AND SC.grade BETWEEN 60 AND 100
+	GROUP BY SC.student_id_FK
+	HAVING Total_class = 12
+
+3.Based on a Faculty ID, display a list of all the courses he or she has taught and the number of 
+times taught and sorted by the ones taught the most.
+=================================================================================================    
+	SELECT P.id AS Faculty_id,C.class_code ,COUNT(SC.class_id_FK) AS Total_count
+	FROM student_class_professor SC 
+	JOIN class C 
+	JOIN professor P 
+	ON SC.class_id_FK = C.id 
+	AND P.id = SC.professor_id_FK 
+    	WHERE P.id = 1
+	GROUP BY SC.class_id_FK,SC.professor_id_FK
+	ORDER BY P.id,Total_count DESC
+
+4.Display a list of all the student’s name and GPA, starting by the greatest GPAs.
+=================================================================================	
+	SELECT S.id,S.name AS Student_name,CEIL(AVG(SC.grade)) AS AVG_grade,IF(AVG(SC.grade)>=90,'4.0',
+					 IF(AVG(SC.grade)>=80,'3.0',
+					 IF(AVG(SC.grade)>=70,'2.0','1.0'))) AS GPA
+	FROM student S 
+	JOIN student_class_professor SC
+	ON S.id = SC.student_id_FK    
+	WHERE end_class <> 'NULL'
+	GROUP BY SC.student_id_FK
+	ORDER BY GPA DESC
+
+5.Get the current class and professor’s name and age for all students who are in the program for 
+less than three months, starting by the most recent students.
+================================================================================================
+	SELECT C.class_code AS Current_class,P.name AS Professor, 2018-YEAR(S.date_of_birth) AS Student_Age
+	FROM class C
+	JOIN professor P
+	JOIN student_class_professor SC
+	JOIN student S
+	ON C.professor_id_FK = P.id
+	AND SC.class_id_FK = C.id
+	AND SC.student_id_FK = S.id
+	WHERE end_class <> 'NULL'
+	AND S.registration_date > DATE_SUB(NOW(), INTERVAL 3 MONTH)
+	ORDER BY S.registration_date DESC
+
+6.Display the professor name, tenure and current class, grouped by the professor’s department.
+==============================================================================================
+	SELECT P.id,P.name AS Professor_name,P.tenure,P.department,C.class_code AS Current_class
+	FROM class C 
+	JOIN professor P 
+	JOIN student_class_professor SC
+	JOIN student S
+	ON SC.professor_id_FK = P.id
+	AND C.id = SC.class_id_FK
+	AND S.id = SC.student_id_FK
+	WHERE SC.end_class = 'NULL'
+    	GROUP BY P.department	
+        	
+or,
+
+	SELECT P.id,P.name AS Professor_name,P.tenure,P.department,C.class_code AS Current_class
+	FROM class C 
+	JOIN professor P 
+	JOIN student_class_professor SC
+	JOIN student S
+	ON SC.professor_id_FK = P.id
+	AND C.id = SC.class_id_FK
+	AND S.id = SC.student_id_FK
+	WHERE SC.end_class = 'NULL'
+    	GROUP BY Current_class
+    	ORDER BY P.department,P.id ASC	
+        	
+
+7.Display name, description and current professor for all the classes offered (the ones having at least one student 
+registered).
+===================================================================================================================
+	SELECT C.name AS Course_name,C.class_code,C.description,P.name AS Professor,S.id AS Student_count
+	FROM class C
+	JOIN professor P
+	JOIN student_class_professor SC
+	JOIN student S
+	ON C.professor_id_FK = P.id
+	AND C.id = SC.class_id_FK
+	AND S.id = SC.student_id_FK
+	WHERE SC.end_class = 'NULL'
+    	GROUP BY S.id
+	HAVING Student_count > 0
+
